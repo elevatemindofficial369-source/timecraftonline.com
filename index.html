@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TimeCraft – Free Online Timer, Alarm Clock & Stopwatch</title>
+<meta name="description" content="Free online timer, alarm clock, stopwatch & world clock. Set a 15 minute timer, 5 minute timer, or any duration. No download needed. Fast, beautiful, free.">
+<meta name="keywords" content="online timer, alarm clock, stopwatch, 15 minute timer, 5 minute timer, world clock, free timer online">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="TimeCraft – Free Online Timer & Clock">
+<meta property="og:description" content="Free timer, alarm clock, stopwatch & world clock. No ads, no download.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<!-- ============================================================
+     ADSENSE CONTROL — మీకు AdSense approve అయిన తర్వాత:
+     1. ADSENSE_ENABLED ని false → true చేయండి
+     2. ca-pub-XXXXXXXXXXXXXXXX ని మీ Publisher ID తో replace చేయండి
+     3. data-ad-slot="XXXXXXXXXX" లో మీ Ad Unit ID paste చేయండి
+     4. File save చేసి Netlify కి re-upload చేయండి — ads live!
+     ============================================================ -->
+<script>
+  var ADSENSE_ENABLED = false; // false = ads hidden | true = ads show
+  var ADSENSE_PUB_ID  = 'ca-pub-XXXXXXXXXXXXXXXX'; // మీ publisher ID ఇక్కడ
+  var ADSENSE_SLOT_TOP = 'XXXXXXXXXX'; // top banner ad unit ID
+  var ADSENSE_SLOT_MID = 'XXXXXXXXXX'; // middle rectangle ad unit ID
+</script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --surface: #13131c; --surface2: #1c1c2a;
+    --border: rgba(255,255,255,0.07); --accent: #7c6df0;
+    --accent2: #f06d7c; --accent3: #6df0c8;
+    --text: #f0f0f8; --muted: rgba(240,240,248,0.45);
+    --mono: 'Space Mono', monospace; --sans: 'Outfit', sans-serif;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
+  body::before { content:''; position:fixed; top:-200px; left:-200px; width:600px; height:600px; background:radial-gradient(circle,rgba(124,109,240,.12) 0%,transparent 70%); pointer-events:none; z-index:0; }
+  body::after { content:''; position:fixed; bottom:-100px; right:-100px; width:500px; height:500px; background:radial-gradient(circle,rgba(109,240,200,.08) 0%,transparent 70%); pointer-events:none; z-index:0; }
+
+  /* COOKIE BANNER */
+  #cookie-banner {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+    background: #1c1c2a; border-top: 1px solid rgba(124,109,240,0.4);
+    padding: 1rem 2rem; display: flex; align-items: center; gap: 1.5rem;
+    flex-wrap: wrap; justify-content: space-between;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+    transform: translateY(100%); transition: transform 0.4s ease;
+  }
+  #cookie-banner.show { transform: translateY(0); }
+  #cookie-banner p { font-size: 0.875rem; color: var(--muted); flex: 1; min-width: 200px; line-height: 1.5; }
+  #cookie-banner a { color: var(--accent); text-decoration: none; }
+  .cookie-btns { display: flex; gap: 0.75rem; }
+  .cookie-accept { padding: 0.5rem 1.5rem; background: var(--accent); border: none; border-radius: 8px; color: #fff; font-family: var(--sans); font-weight: 600; font-size: 0.875rem; cursor: pointer; }
+  .cookie-decline { padding: 0.5rem 1rem; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: var(--sans); font-size: 0.875rem; cursor: pointer; }
+
+  /* AD SLOT — hidden by default, shown via JS when ADSENSE_ENABLED=true */
+  .ad-slot {
+    margin: 1.5rem 0;
+    display: none; /* JS controls this */
+    text-align: center;
+  }
+  .ad-slot.active {
+    display: block;
+  }
+
+  /* NAV */
+  nav { position:sticky; top:0; background:rgba(10,10,15,0.9); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); z-index:100; padding:0 2rem; }
+  .nav-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; gap:2rem; height:60px; flex-wrap:wrap; }
+  .logo { font-family:var(--sans); font-weight:800; font-size:1.3rem; color:var(--text); text-decoration:none; letter-spacing:-0.02em; }
+  .logo span { color:var(--accent); }
+  .nav-tabs { display:flex; gap:0.25rem; flex-wrap:wrap; }
+  .nav-tab { padding:0.4rem 1rem; border-radius:6px; border:none; background:transparent; color:var(--muted); font-family:var(--sans); font-size:0.875rem; font-weight:500; cursor:pointer; transition:all 0.2s; }
+  .nav-tab:hover { background:var(--surface2); color:var(--text); }
+  .nav-tab.active { background:var(--accent); color:#fff; }
+  .nav-links { margin-left:auto; display:flex; gap:1.5rem; }
+  .nav-links a { color:var(--muted); text-decoration:none; font-size:0.85rem; transition:color 0.2s; }
+  .nav-links a:hover { color:var(--accent); }
+
+  main { max-width:1200px; margin:0 auto; padding:3rem 2rem 5rem; position:relative; z-index:1; }
+
+  /* CLOCK PANEL */
+  .clock-panel { background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:3rem 2rem; text-align:center; position:relative; overflow:hidden; margin-bottom:2rem; }
+  .clock-panel::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2)); }
+  #clock-display { font-family:var(--mono); font-size:clamp(3rem,10vw,6rem); font-weight:700; letter-spacing:0.05em; color:var(--text); line-height:1; margin-bottom:0.75rem; }
+  .clock-ampm { font-size:0.35em; color:var(--accent); vertical-align:super; margin-left:0.3em; font-weight:400; }
+  #clock-date { font-size:1rem; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; font-weight:300; margin-bottom:2rem; }
+
+  .timer-display { font-family:var(--mono); font-size:clamp(3rem,12vw,7rem); font-weight:700; letter-spacing:0.08em; color:var(--text); line-height:1; margin-bottom:2rem; }
+  .timer-display.running { color:var(--accent3); }
+  .timer-display.alert { color:var(--accent2); animation:pulse 0.5s infinite alternate; }
+  @keyframes pulse { from{opacity:1} to{opacity:0.5} }
+
+  .stopwatch-display { font-family:var(--mono); font-size:clamp(2.5rem,10vw,6rem); font-weight:700; letter-spacing:0.05em; color:var(--text); line-height:1; margin-bottom:2rem; }
+  .stopwatch-ms { font-size:0.45em; color:var(--muted); }
+
+  .quick-timers { display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center; margin-bottom:2rem; }
+  .quick-btn { padding:0.5rem 1.25rem; border-radius:999px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-family:var(--sans); font-size:0.875rem; font-weight:500; cursor:pointer; transition:all 0.2s; }
+  .quick-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(124,109,240,.1); }
+  .quick-btn.active { border-color:var(--accent); color:#fff; background:var(--accent); }
+
+  .custom-time { display:flex; gap:0.5rem; justify-content:center; align-items:center; margin-bottom:1.5rem; }
+  .time-input { width:70px; padding:0.6rem 0.5rem; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:var(--mono); font-size:1.25rem; text-align:center; font-weight:700; transition:border-color 0.2s; }
+  .time-input:focus { outline:none; border-color:var(--accent); }
+  .time-sep { font-family:var(--mono); font-size:1.5rem; color:var(--muted); }
+
+  .btn-row { display:flex; gap:1rem; justify-content:center; align-items:center; flex-wrap:wrap; }
+  .btn-primary { padding:0.8rem 2.5rem; border-radius:12px; border:none; background:var(--accent); color:#fff; font-family:var(--sans); font-size:1rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .btn-primary:hover { background:#6355d8; transform:translateY(-1px); }
+  .btn-secondary { padding:0.8rem 1.75rem; border-radius:12px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-family:var(--sans); font-size:1rem; font-weight:500; cursor:pointer; transition:all 0.2s; }
+  .btn-secondary:hover { border-color:var(--accent2); color:var(--accent2); }
+  .btn-danger { padding:0.8rem 1.75rem; border-radius:12px; border:1px solid rgba(240,109,124,.3); background:rgba(240,109,124,.15); color:var(--accent2); font-family:var(--sans); font-size:1rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .btn-danger:hover { background:rgba(240,109,124,.25); }
+
+  .laps-container { margin-top:1.5rem; text-align:left; max-height:200px; overflow-y:auto; }
+  .lap-item { display:flex; justify-content:space-between; padding:0.5rem 1rem; border-radius:8px; font-family:var(--mono); font-size:0.875rem; border-bottom:1px solid var(--border); }
+  .lap-num { color:var(--muted); }
+  .lap-time { color:var(--text); font-weight:700; }
+
+  .world-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+  .city-card { background:var(--surface2); border:1px solid var(--border); border-radius:16px; padding:1.25rem 1.5rem; transition:all 0.2s; }
+  .city-card:hover { border-color:rgba(124,109,240,.4); transform:translateY(-2px); }
+  .city-name { font-size:0.8rem; color:var(--muted); font-weight:500; letter-spacing:0.05em; text-transform:uppercase; margin-bottom:0.5rem; }
+  .city-time { font-family:var(--mono); font-size:1.5rem; font-weight:700; color:var(--text); }
+  .city-date { font-size:0.75rem; color:var(--muted); margin-top:0.25rem; }
+
+  .alarm-label { font-size:0.85rem; color:var(--muted); margin-bottom:0.5rem; }
+  .alarm-time-input { padding:0.6rem 1rem; background:var(--surface2); border:1px solid var(--border); border-radius:12px; color:var(--text); font-family:var(--mono); font-size:1.5rem; text-align:center; font-weight:700; margin-bottom:1.5rem; width:200px; transition:border-color 0.2s; }
+  .alarm-time-input:focus { outline:none; border-color:var(--accent); }
+  .alarm-status { padding:0.6rem 1.5rem; border-radius:999px; font-size:0.875rem; font-weight:600; display:inline-block; margin-bottom:1.5rem; }
+  .alarm-status.set { background:rgba(109,240,200,.15); color:var(--accent3); border:1px solid rgba(109,240,200,.3); }
+  .alarm-status.off { background:var(--surface2); color:var(--muted); border:1px solid var(--border); }
+
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  /* FEATURES */
+  .features { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-top:2rem; }
+  .feature-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:1.5rem; }
+  .feature-icon { font-size:1.75rem; margin-bottom:0.75rem; }
+  .feature-title { font-weight:700; font-size:1rem; margin-bottom:0.4rem; color:var(--text); }
+  .feature-desc { font-size:0.85rem; color:var(--muted); line-height:1.5; }
+
+  /* SEO CONTENT */
+  .seo-section { margin-top:4rem; border-top:1px solid var(--border); padding-top:3rem; }
+  .seo-section h2 { font-size:1.75rem; font-weight:800; margin-bottom:1rem; color:var(--text); }
+  .seo-section h3 { font-size:1.1rem; font-weight:600; margin:1.5rem 0 0.5rem; color:var(--accent3); }
+  .seo-section p { color:var(--muted); line-height:1.7; font-size:0.95rem; max-width:800px; margin-bottom:0.75rem; }
+
+  /* FAQ */
+  .faq-item { border-bottom:1px solid var(--border); padding:1.25rem 0; }
+  .faq-q { font-weight:600; color:var(--text); margin-bottom:0.5rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+  .faq-q:after { content:'▼'; font-size:0.75rem; color:var(--muted); transition:transform 0.2s; }
+  .faq-q.open:after { transform:rotate(180deg); }
+  .faq-a { color:var(--muted); font-size:0.9rem; line-height:1.7; display:none; padding-top:0.5rem; }
+  .faq-a.open { display:block; }
+
+  /* FOOTER */
+  footer { background:var(--surface); border-top:1px solid var(--border); padding:3rem 2rem 2rem; position:relative; z-index:1; }
+  .footer-inner { max-width:1200px; margin:0 auto; }
+  .footer-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:2rem; margin-bottom:2rem; }
+  .footer-col h4 { font-size:0.85rem; font-weight:700; color:var(--text); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:1rem; }
+  .footer-col a { display:block; color:var(--muted); text-decoration:none; font-size:0.875rem; margin-bottom:0.5rem; transition:color 0.2s; }
+  .footer-col a:hover { color:var(--accent); }
+  .footer-bottom { border-top:1px solid var(--border); padding-top:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+  .footer-bottom p { font-size:0.8rem; color:var(--muted); }
+  .footer-logo { font-family:var(--sans); font-weight:800; font-size:1.1rem; color:var(--text); }
+  .footer-logo span { color:var(--accent); }
+
+  @media(max-width:600px) {
+    main { padding:2rem 1rem 4rem; }
+    .clock-panel { padding:2rem 1rem; }
+    .nav-links { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COOKIE CONSENT BANNER -->
+<div id="cookie-banner">
+  <p>🍪 We use cookies to improve your experience and serve relevant ads. By clicking "Accept", you agree to our <a href="privacy.html">Privacy Policy</a> and use of cookies. <a href="privacy.html">Learn more</a></p>
+  <div class="cookie-btns">
+    <button class="cookie-decline" onclick="cookieChoice(false)">Decline</button>
+    <button class="cookie-accept" onclick="cookieChoice(true)">Accept All</button>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="index.html">Time<span>Craft</span></a>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('clock',this)">🕐 Clock</button>
+      <button class="nav-tab" onclick="switchTab('timer',this)">⏱ Timer</button>
+      <button class="nav-tab" onclick="switchTab('stopwatch',this)">⏲ Stopwatch</button>
+      <button class="nav-tab" onclick="switchTab('alarm',this)">🔔 Alarm</button>
+      <button class="nav-tab" onclick="switchTab('world',this)">🌍 World</button>
+    </div>
+    <div class="nav-links">
+      <a href="about.html">About</a>
+      <a href="blog.html">Blog</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- TOP BANNER AD — 728x90 -->
+  <div class="ad-slot" id="ad-top">
+    <ins class="adsbygoogle"
+         style="display:block;width:100%;max-width:728px;height:90px;margin:0 auto;"
+         data-ad-client=""
+         data-ad-slot=""
+         data-ad-format="horizontal"
+         data-full-width-responsive="true"></ins>
+  </div>
+
+  <div class="clock-panel">
+    <div id="panel-clock" class="panel active">
+      <div id="clock-display"><span id="clock-time">00:00:00</span><span class="clock-ampm" id="clock-ampm">AM</span></div>
+      <div id="clock-date">Loading...</div>
+    </div>
+
+    <div id="panel-timer" class="panel">
+      <div class="quick-timers">
+        <button class="quick-btn" onclick="setQuick(30,this)">30 sec</button>
+        <button class="quick-btn" onclick="setQuick(60,this)">1 min</button>
+        <button class="quick-btn" onclick="setQuick(120,this)">2 min</button>
+        <button class="quick-btn" onclick="setQuick(180,this)">3 min</button>
+        <button class="quick-btn" onclick="setQuick(300,this)">5 min</button>
+        <button class="quick-btn" onclick="setQuick(600,this)">10 min</button>
+        <button class="quick-btn" onclick="setQuick(900,this)">15 min</button>
+        <button class="quick-btn" onclick="setQuick(1200,this)">20 min</button>
+        <button class="quick-btn" onclick="setQuick(1500,this)">25 min</button>
+        <button class="quick-btn" onclick="setQuick(1800,this)">30 min</button>
+        <button class="quick-btn" onclick="setQuick(2700,this)">45 min</button>
+        <button class="quick-btn" onclick="setQuick(3600,this)">1 hour</button>
+        <button class="quick-btn" onclick="setQuick(7200,this)">2 hours</button>
+      </div>
+      <div class="custom-time">
+        <input class="time-input" id="t-hr" type="number" min="0" max="23" value="00">
+        <span class="time-sep">:</span>
+        <input class="time-input" id="t-min" type="number" min="0" max="59" value="05">
+        <span class="time-sep">:</span>
+        <input class="time-input" id="t-sec" type="number" min="0" max="59" value="00">
+      </div>
+      <div class="timer-display" id="timer-display">05:00</div>
+      <div class="btn-row">
+        <button class="btn-primary" id="timer-btn" onclick="toggleTimer()">▶ Start</button>
+        <button class="btn-secondary" onclick="resetTimer()">↺ Reset</button>
+      </div>
+    </div>
+
+    <div id="panel-stopwatch" class="panel">
+      <div class="stopwatch-display" id="sw-display">00:00<span class="stopwatch-ms">:00</span></div>
+      <div class="btn-row">
+        <button class="btn-primary" id="sw-btn" onclick="toggleStopwatch()">▶ Start</button>
+        <button class="btn-secondary" onclick="lapStopwatch()">⊕ Lap</button>
+        <button class="btn-danger" onclick="resetStopwatch()">✕ Reset</button>
+      </div>
+      <div class="laps-container" id="laps-list"></div>
+    </div>
+
+    <div id="panel-alarm" class="panel">
+      <div class="alarm-label">Set alarm time</div>
+      <input type="time" class="alarm-time-input" id="alarm-input" value="07:00"><br>
+      <div id="alarm-status" class="alarm-status off">No alarm set</div><br>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="setAlarm()">🔔 Set Alarm</button>
+        <button class="btn-secondary" onclick="clearAlarm()">✕ Clear</button>
+      </div>
+    </div>
+
+    <div id="panel-world" class="panel">
+      <div class="world-grid" id="world-grid"></div>
+    </div>
+  </div>
+
+  <!-- MIDDLE RECTANGLE AD — 300x250 -->
+  <div class="ad-slot" id="ad-mid">
+    <ins class="adsbygoogle"
+         style="display:block;width:300px;height:250px;margin:0 auto;"
+         data-ad-client=""
+         data-ad-slot=""
+         data-ad-format="rectangle"></ins>
+  </div>
+
+  <div class="features">
+    <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title">Instant Timer</div><div class="feature-desc">One click to start. 15 minute timer, 5 minute timer, Pomodoro — instantly ready.</div></div>
+    <div class="feature-card"><div class="feature-icon">🌍</div><div class="feature-title">World Clock</div><div class="feature-desc">Live time in 20+ major cities. Perfect for remote teams and international calls.</div></div>
+    <div class="feature-card"><div class="feature-icon">🔔</div><div class="feature-title">Alarm Clock</div><div class="feature-desc">Browser-based alarm with audio. No app, no download — works on any device.</div></div>
+    <div class="feature-card"><div class="feature-icon">🏁</div><div class="feature-title">Stopwatch + Laps</div><div class="feature-desc">Precision millisecond stopwatch with unlimited lap tracking for athletes & students.</div></div>
+  </div>
+
+  <!-- SEO CONTENT -->
+  <div class="seo-section">
+    <h2>Free Online Timer, Clock & Alarm — No Ads, No Download</h2>
+    <p>TimeCraft is your all-in-one time tool, completely free and browser-based. Whether you need a <strong style="color:var(--text)">15 minute timer</strong>, a <strong style="color:var(--text)">5 minute timer</strong>, or a reliable alarm clock, TimeCraft works instantly with no sign-up required.</p>
+
+    <h3>How to use the online timer</h3>
+    <p>Click any quick button (30 sec, 1 min, 5 min, 15 min, 30 min, 1 hour) or type a custom duration. Hit Start — the countdown begins. An audio alert plays when time is up. Works in Chrome, Firefox, Safari, and Edge.</p>
+
+    <h3>Popular timer durations</h3>
+    <p>The most searched timers worldwide: <strong style="color:var(--text)">15 minute timer</strong>, <strong style="color:var(--text)">5 minute timer</strong>, 10 minute timer, 1 hour timer, 30 minute timer, 25 minute timer (Pomodoro technique), 3 minute timer, 2 minute timer, 1 minute timer, 45 minute timer, 20 minute timer, 1 second timer.</p>
+
+    <h3>Pomodoro technique timer</h3>
+    <p>Use the 25-minute timer for focused work sessions, then take a 5-minute break. The Pomodoro technique is proven to boost productivity and reduce mental fatigue. TimeCraft's quick-select buttons make it effortless.</p>
+
+    <h3>World time zones & international clock</h3>
+    <p>Need to know the time in New York, London, Tokyo, or Sydney right now? Switch to the World Clock tab for live time in 20+ cities across all major time zones — updated every second.</p>
+
+    <h3>FAQ</h3>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is TimeCraft completely free?</div><div class="faq-a">Yes! TimeCraft is 100% free to use. All features — timer, alarm, stopwatch, and world clock — are available without any subscription or sign-up.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do I need to install anything?</div><div class="faq-a">No installation needed. TimeCraft runs entirely in your browser. Just open the page and start using it immediately on any device — desktop, tablet, or mobile.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How does the alarm clock work?</div><div class="faq-a">Enter your desired alarm time in the Alarm tab and click Set Alarm. TimeCraft checks the time every few seconds and plays a beep sound when your alarm time arrives. Keep the browser tab open for the alarm to work.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What is a Pomodoro timer?</div><div class="faq-a">The Pomodoro technique uses 25-minute focused work sessions followed by a 5-minute break. Use the 25 min quick button for a perfect Pomodoro timer. After 4 sessions, take a longer 15-30 minute break.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Does the timer work when I switch tabs?</div><div class="faq-a">Yes. The timer runs in the background even when you switch to another tab. The audio alert will still play when time is up, as long as the browser tab remains open.</div></div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-logo">Time<span>Craft</span></div>
+        <p style="color:var(--muted);font-size:0.8rem;margin-top:0.75rem;line-height:1.6;">Free online timer, alarm clock, stopwatch & world clock. No ads. No sign-up. Always free.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Tools</h4>
+        <a href="index.html">Online Timer</a>
+        <a href="index.html">Alarm Clock</a>
+        <a href="index.html">Stopwatch</a>
+        <a href="index.html">World Clock</a>
+      </div>
+      <div class="footer-col">
+        <h4>Popular Timers</h4>
+        <a href="index.html">15 Minute Timer</a>
+        <a href="index.html">5 Minute Timer</a>
+        <a href="index.html">10 Minute Timer</a>
+        <a href="index.html">1 Hour Timer</a>
+        <a href="index.html">Pomodoro Timer</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="about.html">About Us</a>
+        <a href="blog.html">Blog</a>
+        <a href="contact.html">Contact</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 TimeCraft. All rights reserved.</p>
+      <p>Made with ♥ for productivity</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const pad=n=>String(Math.floor(n)).padStart(2,'0');
+
+// COOKIE
+window.addEventListener('load',()=>{
+  if(!localStorage.getItem('cookie-consent')) {
+    setTimeout(()=>$('cookie-banner').classList.add('show'), 1000);
+  }
+});
+function cookieChoice(accepted) {
+  localStorage.setItem('cookie-consent', accepted ? 'accepted' : 'declined');
+  $('cookie-banner').style.transform='translateY(100%)';
+}
+
+// TAB SWITCH
+function switchTab(tab,btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  $('panel-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(tab==='world') renderWorldClock();
+}
+
+// LIVE CLOCK
+function updateClock() {
+  const now=new Date();
+  let h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
+  const ampm=h>=12?'PM':'AM'; h=h%12||12;
+  $('clock-time').textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;
+  $('clock-ampm').textContent=ampm;
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  $('clock-date').textContent=`${days[now.getDay()]} · ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+}
+setInterval(updateClock,1000); updateClock();
+
+// TIMER
+let timerInterval=null,timerRemaining=300,timerRunning=false;
+function formatTimer(s){return s>=3600?`${pad(Math.floor(s/3600))}:${pad(Math.floor((s%3600)/60))}:${pad(s%60)}`:`${pad(Math.floor(s/60))}:${pad(s%60)}`;}
+function updateTimerDisplay(){
+  const d=$('timer-display');
+  d.textContent=formatTimer(timerRemaining);
+  d.className='timer-display'+(timerRunning?' running':'')+(timerRemaining===0?' alert':'');
+}
+function setQuick(secs,btn){
+  document.querySelectorAll('.quick-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  resetTimer(); timerRemaining=secs;
+  $('t-hr').value=pad(Math.floor(secs/3600));
+  $('t-min').value=pad(Math.floor((secs%3600)/60));
+  $('t-sec').value=pad(secs%60);
+  updateTimerDisplay();
+}
+function getInputSecs(){return(+($('t-hr').value||0))*3600+(+($('t-min').value||0))*60+(+($('t-sec').value||0));}
+function toggleTimer(){
+  if(!timerRunning){
+    if(timerRemaining===0){timerRemaining=getInputSecs();if(!timerRemaining)return;}
+    timerRunning=true; $('timer-btn').textContent='⏸ Pause';
+    timerInterval=setInterval(()=>{
+      timerRemaining--;updateTimerDisplay();
+      if(timerRemaining<=0){clearInterval(timerInterval);timerRunning=false;$('timer-btn').textContent='▶ Start';playBeep();}
+    },1000);
+  } else {clearInterval(timerInterval);timerRunning=false;$('timer-btn').textContent='▶ Start';}
+}
+function resetTimer(){
+  clearInterval(timerInterval);timerRunning=false;
+  $('timer-btn').textContent='▶ Start';
+  timerRemaining=getInputSecs()||300;updateTimerDisplay();
+}
+['t-hr','t-min','t-sec'].forEach(id=>$(id).addEventListener('change',resetTimer));
+updateTimerDisplay();
+
+// STOPWATCH
+let swRunning=false,swStart=0,swElapsed=0,swInterval=null,lapCount=0,laps=[];
+function toggleStopwatch(){
+  if(!swRunning){swStart=Date.now();swRunning=true;$('sw-btn').textContent='⏸ Pause';swInterval=setInterval(updateSW,50);}
+  else{swElapsed+=Date.now()-swStart;swRunning=false;clearInterval(swInterval);$('sw-btn').textContent='▶ Resume';updateSW();}
+}
+function updateSW(){
+  const e=swElapsed+(swRunning?Date.now()-swStart:0);
+  $('sw-display').innerHTML=`${pad(Math.floor(e/60000))}:${pad(Math.floor(e/1000)%60)}<span class="stopwatch-ms">:${pad(Math.floor(e/10)%100)}</span>`;
+}
+function lapStopwatch(){
+  if(!swRunning&&swElapsed===0)return;
+  lapCount++;
+  const e=swElapsed+(swRunning?Date.now()-swStart:0);
+  laps.unshift({num:lapCount,time:`${pad(Math.floor(e/60000))}:${pad(Math.floor(e/1000)%60)}:${pad(Math.floor(e/10)%100)}`});
+  $('laps-list').innerHTML=laps.map(l=>`<div class="lap-item"><span class="lap-num">Lap ${l.num}</span><span class="lap-time">${l.time}</span></div>`).join('');
+}
+function resetStopwatch(){
+  clearInterval(swInterval);swRunning=false;swElapsed=0;lapCount=0;laps=[];
+  $('sw-btn').textContent='▶ Start';
+  $('sw-display').innerHTML='00:00<span class="stopwatch-ms">:00</span>';
+  $('laps-list').innerHTML='';
+}
+
+// ALARM
+let alarmTime=null,alarmInterval=null;
+function setAlarm(){
+  const val=$('alarm-input').value;if(!val)return;
+  alarmTime=val;$('alarm-status').textContent=`⏰ Alarm set for ${val}`;
+  $('alarm-status').className='alarm-status set';
+  if(alarmInterval)clearInterval(alarmInterval);
+  alarmInterval=setInterval(()=>{
+    const now=new Date();
+    if(`${pad(now.getHours())}:${pad(now.getMinutes())}`===alarmTime){playBeep(3);alert(`⏰ Alarm! Time is ${alarmTime}`);clearAlarm();}
+  },10000);
+}
+function clearAlarm(){alarmTime=null;clearInterval(alarmInterval);$('alarm-status').textContent='No alarm set';$('alarm-status').className='alarm-status off';}
+
+// WORLD CLOCK
+const cities=[
+  {name:'New York',tz:'America/New_York'},{name:'Los Angeles',tz:'America/Los_Angeles'},
+  {name:'Chicago',tz:'America/Chicago'},{name:'Toronto',tz:'America/Toronto'},
+  {name:'London',tz:'Europe/London'},{name:'Paris',tz:'Europe/Paris'},
+  {name:'Berlin',tz:'Europe/Berlin'},{name:'Moscow',tz:'Europe/Moscow'},
+  {name:'Dubai',tz:'Asia/Dubai'},{name:'Mumbai',tz:'Asia/Kolkata'},
+  {name:'Singapore',tz:'Asia/Singapore'},{name:'Beijing',tz:'Asia/Shanghai'},
+  {name:'Tokyo',tz:'Asia/Tokyo'},{name:'Seoul',tz:'Asia/Seoul'},
+  {name:'Sydney',tz:'Australia/Sydney'},{name:'Auckland',tz:'Pacific/Auckland'},
+  {name:'São Paulo',tz:'America/Sao_Paulo'},{name:'Mexico City',tz:'America/Mexico_City'},
+  {name:'Cairo',tz:'Africa/Cairo'},{name:'Nairobi',tz:'Africa/Nairobi'},
+];
+let worldInterval=null;
+function renderWorldClock(){
+  const grid=$('world-grid');if(!grid)return;
+  function render(){
+    grid.innerHTML=cities.map(c=>{
+      const t=new Date().toLocaleTimeString('en-US',{timeZone:c.tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+      const d=new Date().toLocaleDateString('en-US',{timeZone:c.tz,weekday:'short',month:'short',day:'numeric'});
+      return `<div class="city-card"><div class="city-name">${c.name}</div><div class="city-time">${t}</div><div class="city-date">${d}</div></div>`;
+    }).join('');
+  }
+  render();if(worldInterval)clearInterval(worldInterval);worldInterval=setInterval(render,1000);
+}
+
+// FAQ
+function toggleFaq(el){
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
+
+// BEEP
+function playBeep(times=1){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    let t=ctx.currentTime;
+    for(let i=0;i<times;i++){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=880;o.type='sine';
+      g.gain.setValueAtTime(0.5,t);g.gain.exponentialRampToValueAtTime(0.01,t+0.5);
+      o.start(t);o.stop(t+0.5);t+=0.7;
+    }
+  }catch(e){}
+}
+
+// ADSENSE ACTIVATION
+// ADSENSE_ENABLED = true చేసినప్పుడు ఇది automatically:
+// 1. AdSense script load చేస్తుంది
+// 2. Ad slots visible చేస్తుంది
+// 3. data-ad-client & data-ad-slot fill చేస్తుంది
+// 4. adsbygoogle.push() call చేసి ads render చేస్తుంది
+(function initAds() {
+  if (!ADSENSE_ENABLED) return; // false అయితే ఏమీ చేయదు
+
+  // Script dynamically load చేయడం
+  var script = document.createElement('script');
+  script.async = true;
+  script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + ADSENSE_PUB_ID;
+  script.crossOrigin = 'anonymous';
+  document.head.appendChild(script);
+
+  // Ad slots visible చేయడం & IDs fill చేయడం
+  script.onload = function() {
+    var topSlot = document.getElementById('ad-top');
+    var midSlot = document.getElementById('ad-mid');
+
+    if (topSlot) {
+      topSlot.classList.add('active');
+      var insTop = topSlot.querySelector('ins');
+      insTop.setAttribute('data-ad-client', ADSENSE_PUB_ID);
+      insTop.setAttribute('data-ad-slot', ADSENSE_SLOT_TOP);
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    }
+
+    if (midSlot) {
+      midSlot.classList.add('active');
+      var insMid = midSlot.querySelector('ins');
+      insMid.setAttribute('data-ad-client', ADSENSE_PUB_ID);
+      insMid.setAttribute('data-ad-slot', ADSENSE_SLOT_MID);
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    }
+  };
+})();
+</script>
+</body>
+</html>
