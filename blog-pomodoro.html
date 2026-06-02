@@ -14,78 +14,91 @@
             margin: 0;
         }
         
-        /* ===== IMPROVED HEADER ===== */
+        /* Professional Header */
         nav {
-            background: #1a1a1a;
-            padding: 15px 0;
+            background: #111;
+            padding: 18px 0;
             border-bottom: 1px solid #333;
             position: sticky;
             top: 0;
             z-index: 100;
         }
         .nav-inner {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 30px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .logo {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: #ff9500;
             text-decoration: none;
         }
         .logo span {
-            color: #ffffff;
+            color: #fff;
         }
         .nav-links {
             display: flex;
-            gap: 25px;
+            gap: 30px;
         }
         .nav-link {
-            color: #ccc;
+            color: #ddd;
             text-decoration: none;
-            font-weight: 500;
+            font-size: 1.05rem;
         }
         .nav-link:hover {
             color: #ff9500;
         }
 
-        /* Blog Content Styles */
+        /* Blog Styles */
         .blog-container { 
-            max-width: 900px; 
-            margin: 50px auto; 
+            max-width: 950px; 
+            margin: 60px auto; 
             padding: 20px; 
         }
         .blog-header { 
             text-align: center; 
-            margin-bottom: 50px; 
+            margin-bottom: 60px; 
+        }
+        .blog-tag {
+            background: #ff9500;
+            color: #000;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
         }
         .blog-title { 
-            font-size: 2.8rem; 
+            font-size: 2.9rem; 
             color: #ff9500; 
+            margin: 15px 0 10px;
         }
         .blog-meta { 
-            color: #888; 
+            color: #999; 
             font-size: 1.1rem; 
         }
         .blog-content { 
             background: #1a1a1a; 
-            padding: 50px; 
+            padding: 55px; 
             border-radius: 16px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
         }
-        h2 { color: #ff9500; margin-top: 45px; }
+        h2 { 
+            color: #ff9500; 
+            margin-top: 50px; 
+            border-bottom: 1px solid #333;
+            padding-bottom: 12px;
+        }
         h3 { color: #ffaa33; }
-        ul, ol { margin: 20px 0; padding-left: 28px; }
-        li { margin-bottom: 10px; }
+        ul, ol { margin: 22px 0; padding-left: 30px; }
+        li { margin-bottom: 12px; }
     </style>
 </head>
 <body>
 
-    <!-- IMPROVED HEADER -->
     <nav>
         <div class="nav-inner">
             <a class="logo" href="index.html">Time<span>Craft</span></a>
@@ -99,18 +112,28 @@
 
     <div class="blog-container">
         <div class="blog-header">
-            <span class="blog-tag tag-productivity">Productivity</span>
+            <span class="blog-tag">Productivity</span>
             <h1 class="blog-title">The Complete Pomodoro Technique Guide for 2026</h1>
-            <p class="blog-meta">May 28, 2026 • 12 min read • Productivity</p>
+            <p class="blog-meta">May 28, 2026 • 12 min read</p>
         </div>
 
         <div class="blog-content">
-            <!-- మీ పాత కంటెంట్ ఇక్కడ ఉంటుంది (మార్చకండి) -->
             <h2>🍅 What is the Pomodoro Technique?</h2>
-            <p>The Pomodoro Technique is a popular time management method developed by Italian student Francesco Cirillo in the late 1980s...</p>
+            <p>The Pomodoro Technique is a popular time management method developed by Italian student Francesco Cirillo in the late 1980s. It uses a timer to break work into focused intervals (traditionally 25 minutes), separated by short breaks.</p>
 
-            <!-- ఇక్కడ మీ అన్ని సెక్షన్లు ఉంటాయి. పాత కోడ్ నుంచి కాపీ చేసి పేస్ట్ చేయవచ్చు -->
-            
+            <h2>Why Pomodoro Works So Well</h2>
+            <p>Our brain isn't designed for long hours of continuous focus. This technique works with your natural attention span.</p>
+
+            <h2>How to Use the Pomodoro Technique (Step-by-Step)</h2>
+            <ol>
+                <li>Choose one specific task</li>
+                <li>Set timer for 25 minutes</li>
+                <li>Work with full focus</li>
+                <li>Take 5-minute break</li>
+                <li>After 4 Pomodoros, take longer break (15-30 mins)</li>
+            </ol>
+
+            <!-- మీరు ఇంతకు ముందు ఉన్న కంటెంట్ ఇక్కడ కాపీ చేసి పేస్ట్ చేయవచ్చు -->
         </div>
     </div>
 
